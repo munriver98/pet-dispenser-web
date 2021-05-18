@@ -5,7 +5,7 @@ import json
 
 app = Flask(__name__)
 
-raspi_endpoint = "http://192.168.0.98:9100/api"
+raspi_endpoint = "http://192.168.0.98:9100/api" # Set RaspberryPI IP
 
 @app.route('/')
 def index():
@@ -35,6 +35,17 @@ def index():
 
     return render_template('index.html', params=param_dict)
 
+@app.route('/feed/<type>' ,methods=['POST'])
+def feed_now(type):
+    try:
+        response = requests.get(f'{raspi_endpoint}/feed/{type}')
+        if response.status_code != 200:
+            raise Exception
+    except Exception as e:
+        print('Error occured.', e)
+        return {},400
+    return response.json(),200    
+
 @app.route('/saveSchedule' ,methods=['POST'])
 def save_schedule():
     try:
@@ -50,7 +61,7 @@ def save_schedule():
     except Exception as e:
         print('Error occured.', e)
         return {},400
-    return {},200
+    return response.json(),200
 
 def get_meal_times():
     response = requests.get(f'{raspi_endpoint}/mealdata/21')
